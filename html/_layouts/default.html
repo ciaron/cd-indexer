@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site.name }}</title>
+    <meta name="description" content="{{ site.name }}" />
+    <meta name="keywords" content="jekyll, python, CDs, giveaway" />
+    <meta name="author" content="Ciaron Linstead" />
+
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px;
+      }
+    </style>
+    <link href="/css/bootstrap-responsive.css" rel="stylesheet">
+  </head>
+  <body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="navbar-brand" href="#">{{ site.name }}</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="active"><a href="/">Home</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+ {{ content }}
+
+    <table class="table">
+
+    {% for cd in page.cds %}
+        <tr><td>{{ forloop.index }}</td><td><img src='{{ cd.img_url }}'/></td><td><a href='{{ cd.url }}'>{{cd.artist}} - {{cd.title}}</a></td></tr>
+    {% endfor %}
+
+    </table>
+
+</div>
+
+  </body>
+</html>
