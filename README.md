@@ -9,6 +9,7 @@
 
 ## Running:
 1. python barcode.py < barcode.csv > html/index.md
+
     This output is a YAML frontmatter section that can be parsed by Jekyll/Liquid.
 2. cd html
 3. jekyll build - this puts everything into _site. Copy that to your webserver. Bootstrap 3.2 is included for styling.
