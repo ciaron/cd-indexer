@@ -5,9 +5,15 @@
 1. Python
 2. python-amazon-simple-product-api (pip install...)
 3. An Amazon affililate account (for Associate Tag)
-4. A Jekyll installation for generating the static HTML
+4. For HTML: jinja2 templating system for Python (pip install...)
+5. For Jekyll/YAML: A Jekyll installation for generating the static HTML
 
-## Running:
+## Running (direct to HTML)
+1. python barcode.py < barcode.csv > index.html
+    This will output a HTML file based on the template index.html.template
+    (requires Jinja2 - pip install jinja2)
+
+## Running (Jekyll/YAML):
 1. python barcode.py < barcode.csv > html/index.md
 
     This output is a YAML frontmatter section that can be parsed by Jekyll/Liquid.
