@@ -103,9 +103,9 @@ for ItemId in barcodes:
             print "      img_url: " + result['image']
             print "      url: " + result['offer_url']
 
-        sys.stderr.write(unicode(result['artist']));
-        sys.stderr.write(unicode(result['code']));
-        sys.stderr.write('\n');
+        #sys.stderr.write(unicode(result['artist']));
+        #sys.stderr.write(unicode(result['code']));
+        #sys.stderr.write('\n');
         results.append(result)
 
     else:
