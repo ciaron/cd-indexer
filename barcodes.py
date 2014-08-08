@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 1. Read barcode CSV file output by Barcode Scanner (ZXing Team) Android app.
 2. Look up UPC code on upc-search.org (XML pay-for API: http://www.ean-search.org/ean-database-api.html)
@@ -29,7 +30,7 @@ for row in csv.reader(iter(sys.stdin.readline, '')):
     barcodes.append(row[0])
 
 #print barcodes
-results = {}
+results = []
 count = 0
 
 if format=='yaml':
@@ -38,50 +39,10 @@ if format=='yaml':
     print "layout: default"
     print "cds:"
 elif format=='html':
-    print """
-<!DOCTYPE html>
-<html lang="en" class="no-js">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDs to give away...</title>
-    <meta name="description" content="CDs to give away..." />
-    <meta name="keywords" content="jekyll, python, CDs, giveaway" />
-    <meta name="author" content="Ciaron Linstead" />
-
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-      body {
-        padding-top: 60px;
-      }
-    </style>
-    <!--<link href="/css/bootstrap-responsive.css" rel="stylesheet"> -->
-  </head>
-  <body>
-<div class="navbar navbar-inverse navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container">
-      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </a>
-      <a class="navbar-brand" href="#">CDs to give away...</a>
-      <div class="nav-collapse collapse">
-        <ul class="nav">
-          <li class="active"><a href="/">Home</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-
-    <table class="table">
-
-"""
+    from jinja2 import Template
+    template_file = open('index.html.template')
+    template = Template(template_file.read())
+    template_file.close()
 
 for ItemId in barcodes:
 
@@ -108,36 +69,44 @@ for ItemId in barcodes:
                     pass
 
         count += 1
-        results[ItemId] = {}
+        result = {}
+        result['code'] = ItemId
 
         try:
-            results[ItemId]['artist'] = product.item.ItemAttributes.Artist.text.encode('utf-8')
+            #result['artist'] = product.item.ItemAttributes.Artist.text.encode('utf-8')
+            result['artist'] = product.item.ItemAttributes.Artist.text
         except:
-            results[ItemId]['artist'] = 'unknown'
+            result['artist'] = 'unknown'
+
         try:
-            results[ItemId]['title'] = product.title
+            result['title'] = product.title
         except:
-            results[ItemId]['title'] = 'unknown'
+            result['title'] = 'unknown'
+
         try:
             if product.small_image_url != None:
-                results[ItemId]['image'] = product.small_image_url
+                result['image'] = product.small_image_url
             else:
-                results[ItemId]['image'] = 'http://placehold.it/75x75'
+                result['image'] = 'http://placehold.it/75x75'
 
         except:
-           results[ItemId]['image'] = 'http://placehold.it/75x75'
+           result['image'] = 'http://placehold.it/75x75'
+
         try:
-           results[ItemId]['offer_url'] = product.offer_url
+           result['offer_url'] = product.offer_url
         except:
-           results[ItemId]['offer_url'] = 'http://amazon.de'
+           result['offer_url'] = 'http://amazon.de'
 
         if format=='yaml':
-            print "    - artist: " + results[ItemId]['artist']
-            print "      title: " + results[ItemId]['title']
-            print "      img_url: " + results[ItemId]['image']
-            print "      url: " + results[ItemId]['offer_url']
-        elif format=='html':
-            print "<tr><td>"+str(count)+"</td><td><img src='" + results[ItemId]['image'] + "'/></td><td><a href='" + results[ItemId]['offer_url'] + "'>" + results[ItemId]['artist'] + " - " + results[ItemId]['title'] + "</a></td></tr>"
+            print "    - artist: " + result['artist']
+            print "      title: " + result['title']
+            print "      img_url: " + result['image']
+            print "      url: " + result['offer_url']
+
+        sys.stderr.write(unicode(result['artist']));
+        sys.stderr.write(unicode(result['code']));
+        sys.stderr.write('\n');
+        results.append(result)
 
     else:
         #print "Unknown IdType for %s, skipping" % ItemId
@@ -146,12 +115,5 @@ for ItemId in barcodes:
 if format == 'yaml':
     print "---"
 elif format == 'html':
-    print """
-    </table>
-
-</div>
-
-Code for this site <a href="https://github.com/ciaron/cd-indexer">on Github</a>
-  </body>
-</html>
-"""
+    sys.stderr.write('Rendering template...\n')
+    sys.stdout.write(template.render(cds=results).encode( "utf-8" ))
