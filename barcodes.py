@@ -17,6 +17,8 @@ amazon_com = AmazonAPI(AWSAccessKeyId, AWSSecretKey, AWSAssociateTag, region='US
 amazon_co_uk = AmazonAPI(AWSAccessKeyId, AWSSecretKey, AWSAssociateTag, region='UK')
 amazon_de = AmazonAPI(AWSAccessKeyId, AWSSecretKey, AWSAssociateTag, region='DE')
 
+format='html' # use 'yaml' or 'html' depending on whether you want to process with Jekyll or not
+
 # Read the CSV file (barcodes.csv)
 barcodes = []
 #with open('barcodes-short.csv', 'rb') as csvfile:
@@ -30,10 +32,56 @@ for row in csv.reader(iter(sys.stdin.readline, '')):
 results = {}
 count = 0
 
-print "---"
-print "title: CDs to give away"
-print "layout: default"
-print "cds:"
+if format=='yaml':
+    print "---"
+    print "title: CDs to give away"
+    print "layout: default"
+    print "cds:"
+elif format=='html':
+    print """
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDs to give away...</title>
+    <meta name="description" content="CDs to give away..." />
+    <meta name="keywords" content="jekyll, python, CDs, giveaway" />
+    <meta name="author" content="Ciaron Linstead" />
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px;
+      }
+    </style>
+    <!--<link href="/css/bootstrap-responsive.css" rel="stylesheet"> -->
+  </head>
+  <body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="navbar-brand" href="#">CDs to give away...</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="active"><a href="/">Home</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+    <table class="table">
+
+"""
 
 for ItemId in barcodes:
 
@@ -56,7 +104,8 @@ for ItemId in barcodes:
                 try:
                     product = amazon_de.lookup(SearchIndex='All', IdType=IdType, ItemId=ItemId)
                 except:
-                    print "%s not found" % ItemId
+                    #print "%s not found" % ItemId
+                    pass
 
         count += 1
         results[ItemId] = {}
@@ -82,13 +131,27 @@ for ItemId in barcodes:
         except:
            results[ItemId]['offer_url'] = 'http://amazon.de'
 
-        print "    - artist: " + results[ItemId]['artist']
-        print "      title: " + results[ItemId]['title']
-        print "      img_url: " + results[ItemId]['image']
-        print "      url: " + results[ItemId]['offer_url'] 
+        if format=='yaml':
+            print "    - artist: " + results[ItemId]['artist']
+            print "      title: " + results[ItemId]['title']
+            print "      img_url: " + results[ItemId]['image']
+            print "      url: " + results[ItemId]['offer_url']
+        elif format=='html':
+            print "<tr><td>"+str(count)+"</td><td><img src='" + results[ItemId]['image'] + "'/></td><td><a href='" + results[ItemId]['offer_url'] + "'>" + results[ItemId]['artist'] + " - " + results[ItemId]['title'] + "</a></td></tr>"
 
     else:
         #print "Unknown IdType for %s, skipping" % ItemId
         pass
 
-print "---"
+if format == 'yaml':
+    print "---"
+elif format == 'html':
+    print """
+    </table>
+
+</div>
+
+Code for this site <a href="https://github.com/ciaron/cd-indexer">on Github</a>
+  </body>
+</html>
+"""
