@@ -10,6 +10,7 @@
 
 ## Running (direct to HTML)
 1. python barcode.py < barcode.csv > index.html
+
     This will output a HTML file based on the template index.html.template
     (requires Jinja2 - pip install jinja2)
 
